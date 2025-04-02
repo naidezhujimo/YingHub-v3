@@ -48,17 +48,13 @@ This release introduces significant architectural improvements, training optimiz
 python data_cleaner.py
 
 ### Training
-```bash
 python MoE.py --train
 
 ### Generate
-```bash
 python MoE.py --generate
 
 ### RLHF
-```bash
 python MoE.py --rlhf
 
 ### After Generate fune-tuning
-```bash
 python MoE.py --ftgenerate
