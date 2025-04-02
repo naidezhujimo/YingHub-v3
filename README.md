@@ -9,13 +9,13 @@ This release introduces significant architectural improvements, training optimiz
 
 ### 1. **Data Loading & Preprocessing Optimizations**
 - **Sliding Window Pre-computation**  
-  Implemented memory-efficient `unfold` + circular buffer strategies to handle variable-length sequences:
+  Implemented memory-efficient `unfold` + circular buffer strategies to handle variable-length sequences
 
 - **Dynamic Mask Augmentation**  
-  10% random token masking with `<unk>` during batch generation improves robustness:
+  10% random token masking with `<unk>` during batch generation improves robustness
 
 - **Streaming Dataset Iterator**  
-  Memory-mapped data loading with zero-copy tensor conversion (4x faster than v2's disk I/O):
+  Memory-mapped data loading with zero-copy tensor conversion (4x faster than v2's disk I/O)
 
 ### 2. **Architectural Upgrades**
 - **Flash Attention Integration**  
