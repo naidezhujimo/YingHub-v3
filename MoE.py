@@ -15,10 +15,10 @@ import triton.language as tl
 from torch import vmap
 
 # 加载预训练模型
-from transformers import AutoModelForCausalLM, AutoTokenizer
-model_name = "gpt2"
-pretrained_lm = AutoModelForCausalLM.from_pretrained(model_name)
-tokenizer = AutoTokenizer.from_pretrained(model_name)
+# from transformers import AutoModelForCausalLM, AutoTokenizer
+# model_name = "gpt2"
+# pretrained_lm = AutoModelForCausalLM.from_pretrained(model_name)
+# tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 #------------------------------------------------------------------------------
 # 超参数设置
@@ -38,12 +38,13 @@ eval_iters = 100  # 评估时使用的迭代次数
 learning_rate = 4e-5  # 学习率
 device = 'cuda' if torch.cuda.is_available() else 'cpu' # 训练设备
 class ShakespeareDataset:
-    def __init__(self, data, block_size, batch_size, device):
+    def __init__(self, data, block_size, batch_size, device, mask_prob):
         self.unk_token = torch.tensor([enc.encode("<unk>")[0]], dtype=torch.long, device=device)
         self.data = data  # 保持CPU端
         self.block_size = block_size
         self.batch_size = batch_size
         self.device = device
+        self.mask_prob = mask_prob
 
         # 预计算滑动窗口视图
         self.window_view = self.data.unfold(0, block_size+1, 1)
@@ -53,8 +54,8 @@ class ShakespeareDataset:
     
     def __getitem__(self, idx):
         chunk = self.window_view[idx]
-        # 添加随机掩码增强，15%-20%
-        if random.random() < 0.15 + 0.05 * (idx % 100 < 30):
+        # 随机掩码增强
+        if random.random() < self.mask_prob:
             mask_pos = random.randint(0, self.block_size-1)
             chunk[mask_pos] = self.unk_token
         return chunk[:-1], chunk[1:]
@@ -1173,25 +1174,33 @@ def _init_weights(module):
 
 
 def get_batch(data, block_size, batch_size, device, current_iter):
-    # 初始化数据集（仅首次调用时执行）
-    if not hasattr(data, 'dataset'):
-        # 直接创建数据集实例（不再需要复杂的内存优化）
-        data.dataset = ShakespeareDataset(
-            data, 
-            block_size=block_size,
-            batch_size=batch_size,
-            device=device
-        )
-        
-        # 简化DataLoader配置（Windows兼容）
-        data.loader = torch.utils.data.DataLoader(
-            data.dataset,
-            batch_size=batch_size,
-            shuffle=True,      # 启用DataLoader层的随机打乱
-            num_workers=0,      # Windows下设为0避免多进程问题
-            pin_memory=True,     # 仍可使用内存锁定加速传输
-        )
-        data.loader_iter = iter(data.loader)
+    # 根据训练进度调整mask比例和序列长度
+    progress = min(current_iter / max_iters, 1.0)
+    
+    # 动态mask比例（从15%逐步提升到25%）
+    current_mask_prob = 0.15 + 0.1 * progress
+    
+    # 动态序列长度（从64逐步提升到96）
+    current_block_size = min(block_size, 64 + int(32 * progress))
+    
+    # 直接创建数据集实例（不再需要复杂的内存优化）
+    data.dataset = ShakespeareDataset(
+        data, 
+        block_size=current_block_size,
+        batch_size=batch_size,
+        device=device,
+        mask_prob=current_mask_prob
+    )
+    
+    # 简化DataLoader配置（Windows兼容）
+    data.loader = torch.utils.data.DataLoader(
+        data.dataset,
+        batch_size=batch_size,
+        shuffle=True,      # 启用DataLoader层的随机打乱
+        num_workers=0,      # Windows下设为0避免多进程问题
+        pin_memory=True,     # 仍可使用内存锁定加速传输
+    )
+    data.loader_iter = iter(data.loader)
 
     try:
         xb, yb = next(data.loader_iter)
