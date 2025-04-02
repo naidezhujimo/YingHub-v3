@@ -102,7 +102,7 @@ python MoE.py --rlhf --checkpoint model_checkpoint.pth
 
 | Metric                | v2      | v3      |
 |-----------------------|---------|---------|
-| Validation Loss       | 5.8    | **6.5**|
+| Validation Loss       | 5.8    | **5.1**|
 | Expert Utilization    | 73%     | **88%** |
 | PPL (Shakespeare)     | 18.9    | **14.2**|
 | Training Speed (tok/s)| 1,420   | **2,310**|
