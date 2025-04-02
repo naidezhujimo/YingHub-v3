@@ -7,14 +7,6 @@ This release introduces significant architectural improvements, training optimiz
 
 ## 🚀 Key Advancements (v3 vs v2)
 
-
-# Sparse MoE Language Model: Shakespearean Text Generation
-
-**v3 Major Enhancements & Innovations**  
-This release introduces significant architectural improvements, training optimizations, and novel features over v2, specifically designed for high-quality Shakespearean text generation.
-
-
-
 ### 1. **Data Loading & Preprocessing Optimizations**
 - **Sliding Window Pre-computation**  
   Implemented memory-efficient `unfold` + circular buffer strategies to handle variable-length sequences:
@@ -41,18 +33,7 @@ This release introduces significant architectural improvements, training optimiz
           y = torch.stack([self[j][1] for j in perm[i:i+batch_size]])
           yield x.to(device, non_blocking=True), y.to(device, non_blocking=True)
   ```
-
-## 📊 Data Pipeline Performance
-
-| Metric                | v2      | v3      |
-|-----------------------|---------|---------|
-| Batch Preparation Time | 420ms   | **85ms**|
-| Memory Footprint      | 8.2GB   | **3.1GB**|
-| Effective Data Reuse  | 68%     | **92%** |
-| Augmentation Variety  | 3 types | **7 types** |
-
-
-### 1. **Architectural Upgrades**
+### 2. **Architectural Upgrades**
 - **Flash Attention Integration**  
   Implemented Triton-accelerated Flash Attention kernels (2.1x faster than standard PyTorch attention).
 - **Heterogeneous Experts**  
@@ -60,7 +41,7 @@ This release introduces significant architectural improvements, training optimiz
 - **Dynamic Top-K Routing**  
   Adaptive token-to-expert allocation with capacity-aware load balancing (15% better expert utilization).
 
-### 2. **Training Optimizations**
+### 3. **Training Optimizations**
 - **Factorized Embeddings**  
   Low-rank embeddings + projection layers reduce memory usage by 40% with <1% accuracy drop.
 - **Curriculum Learning Scheduler**  
@@ -68,7 +49,7 @@ This release introduces significant architectural improvements, training optimiz
 - **Structured Dropout**  
   Block-wise dropout (20%) + gradient clipping (norm=1.2) prevents overfitting.
 
-### 3. **Controlled Generation**
+### 4. **Controlled Generation**
 - **Dramatic Structure Enforcement**  
   State machine tracking for `<SCENE>`, `<SPEAKER>`, and `<STAGE>` tag consistency.
 - **Iambic Pentameter Checker**  
@@ -76,7 +57,7 @@ This release introduces significant architectural improvements, training optimiz
 - **Rhyme Schema Detection**  
   Supports ABAB/AABB/ABABCC patterns via phonetic analysis.
 
-### 4. **Data Pipeline**
+### 5. **Data Pipeline**
 - **Enhanced Shakespeare Cleaning**  
   Specialized regex patterns for:  
   - Speaker turn management (`<SPEAKER>...</SPEAKER>`)  
@@ -108,6 +89,14 @@ python MoE.py --ftgenerate --temperature 0.6 --top_p 0.9
 python MoE.py --rlhf --checkpoint model_checkpoint.pth
 ```
 
+## 📊 Data Pipeline Performance
+
+| Metric                | v2      | v3      |
+|-----------------------|---------|---------|
+| Batch Preparation Time | 420ms   | **85ms**|
+| Memory Footprint      | 8.2GB   | **3.1GB**|
+| Effective Data Reuse  | 68%     | **92%** |
+| Augmentation Variety  | 3 types | **7 types** |
 
 ## 📊 Performance Metrics
 
