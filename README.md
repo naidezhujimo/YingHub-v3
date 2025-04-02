@@ -10,29 +10,13 @@ This release introduces significant architectural improvements, training optimiz
 ### 1. **Data Loading & Preprocessing Optimizations**
 - **Sliding Window Pre-computation**  
   Implemented memory-efficient `unfold` + circular buffer strategies to handle variable-length sequences:
-  ```python
-  # Precompute sliding window views
-  self.window_view = data.unfold(0, block_size+1, 1)
-  # Auto-extend short datasets using ring buffer
-  buffer = CircularBuffer(tokens, (block_size+1)*100)
-  ```
+
 - **Dynamic Mask Augmentation**  
   10% random token masking with `<unk>` during batch generation improves robustness:
-  ```python
-  if random.random() < 0.1:
-      mask_pos = random.randint(0, self.block_size-1)
-      chunk[mask_pos] = self.unk_token
-  ```
+
 - **Streaming Dataset Iterator**  
   Memory-mapped data loading with zero-copy tensor conversion (4x faster than v2's disk I/O):
-  ```python
-  def __iter__(self):
-      perm = torch.randperm(len(self))
-      for i in range(0, len(perm), batch_size):
-          x = torch.stack([self[j][0] for j in perm[i:i+batch_size]])
-          y = torch.stack([self[j][1] for j in perm[i:i+batch_size]])
-          yield x.to(device, non_blocking=True), y.to(device, non_blocking=True)
-  ```
+
 ### 2. **Architectural Upgrades**
 - **Flash Attention Integration**  
   Implemented Triton-accelerated Flash Attention kernels (2.1x faster than standard PyTorch attention).
