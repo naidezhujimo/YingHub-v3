@@ -43,9 +43,8 @@ This release introduces significant architectural improvements, training optimiz
 ---
 
 ## 🛠 Usage Examples
-
-### Generate a dataset
 ```bash
+### Generate a dataset
 python data_cleaner.py
 
 ### Training
