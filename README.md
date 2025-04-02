@@ -44,6 +44,22 @@ This release introduces significant architectural improvements, training optimiz
 
 ## 🛠 Usage Examples
 
+### Generate a dataset
+```bash
+python data_cleaner.py
+
 ### Training
 ```bash
-python MoE.py --train --batch_size 32 --block_size 96
+python MoE.py --train
+
+### Generate
+```bash
+python MoE.py --generate
+
+### RLHF
+```bash
+python MoE.py --rlhf
+
+### After Generate fune-tuning
+```bash
+python MoE.py --ftgenerate
