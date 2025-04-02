@@ -31,7 +31,7 @@ This release introduces significant architectural improvements, training optimiz
 - **Curriculum Learning Scheduler**  
   Progressive sequence length scaling (48→88 tokens) stabilizes RLHF fine-tuning.
 - **Structured Dropout**  
-  Block-wise dropout (20%) + gradient clipping (norm=1.2) prevents overfitting.
+  Block-wise dropout (20%) + Structural embedding dropout (20%) + Attention dropout (30%) + gradient clipping (norm=1.2) prevents overfitting. 
 
 ### 4. **Controlled Generation**
 - **Dramatic Structure Enforcement**  
